@@ -1,0 +1,45 @@
+---
+title: 'Making an R package: getting started and lessons learned'
+author: "Nick Williams"
+output: 
+  html_document: 
+    toc: true
+    toc_float: true
+    css: styles.css
+theme: cosmo
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+## A little background
+
+## Creating the initial package
+
+To get setup, we can first check to see if the `devtools` package is installed and if not install it. 
+
+```{r eval = FALSE}
+if (!require(devtools)) {
+  install.packages("devtools") 
+  library(devtools)
+} else {
+  library(devtools)
+}
+```
+
+Once we have devtools loaded, we can create the skeleton of the package. This is where you get to decide the most important aspect of your package, it's name. 
+
+In this case, we will name our package *foopkg*. To create the package we call `create_packages()` and specify where to create the project for the package on your computer. 
+
+```{r}
+create_package("~/Documents/foopkg")
+```
+
+My home directory for R is my "Documents" folder, if you have a different home directory or want to save the package in a different folder just modify the filepath. You should get an output similar to this
+
+<img src="images/create_pkg.PNG" style="width:75%">
+
+
+
+
