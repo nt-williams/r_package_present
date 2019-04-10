@@ -67,34 +67,55 @@ The code for package functions should be stored in the R folder. It is good prac
 
 ```{r}
 use_r("fooadd")
-use_r("print.fooadd")
 ```
 
-`use_r` will create two .R files under the R/ folder. In this case, the files will be called "fooadd.R" and "print.fooadd.R". 
+`use_r` will create a .R file in R/. In this case, the file will be called "fooadd.R" We are also going to manually create a file in R/ called "print.fooadd.R". We can't use `use_r` in this case because the period between print and fooadd will be replaced with a dash; this period is necessary for correct functionality in this case. 
 
-We can now populate this new file with the defining code of the function. 
+We can now populate the new files with the defining code of the functions. 
 
 ```{r}
-fooadd <- function(int1, int2) {
-  x <- int1 + int2
-  
-  out <- list(int1 = int1, int2 = int2, sum = x)
-  class(out) <- "fooadd"
+fooadd <- function(obj, ...) {
+  x <- sum(obj, ...)
+
+  out <- list(obj = obj, ..., sum = x)
+  class(out) <- "fadd"
   out
 }
 ```
 
-`fooadd` is a simple function that takes two integers as its arguments and returns their sum. However, instead of returning standard R console output, we are are going to utilize the S3 object-oriented program mechanic in R to output some nicer looking output. To do this, we write a function called `print.fooadd` which takes as its input the list created when calling `fooadd` and then combines those list elements using `glue`. Now, whenever printing the results of `fooadd`, the function `print` searches through its defined methods and recognizes how to print an object of class "fooadd". 
+`fooadd` is a simple function that takes two integers as its arguments and returns their sum. However, instead of returning standard R console output, we are are going to utilize the S3 object-oriented program mechanic in R to output some nicer looking output. To do this, we write a function called `print.fadd` which takes as its input the list created when calling `fooadd` and then combines those list elements using `glue`. Now, whenever printing the results of `fooadd`, the function `print` searches through its defined methods and recognizes how to print an object of class "fadd". 
 
 ```{r}
-print.fooadd <- function(x, ...) {
-  glue({x$int1}, "+", {x$int2}, "=", {x$sum}, .sep = " ")
+print.fadd <- function(x, ...) {
+
+  base <- glue('{x$obj} +')
+  y <- x[names(x) == ""]
+
+  for (i in 1:length(y)) {
+    if (i < length(y)) {
+      base <- glue('{base} {y[[i]]} +')
+    } else if (i == length(y)) {
+      base <- glue('{base} {y[[i]]}')
+    }
+  }
+  cat(glue('{base} = {x$sum}'))
 }
 ```
 
 This might seem unnecessary, but its important to remember that you should be writing functions that are going to be distributed and used in ways you may not expect. Beyond returning a more user friendly output, creating an S3 method for the generic `print` function allows users to save the results of `fooadd` as an object which can be further manipulated. 
 
 ### Piloting
+
+Of course you are going to want to test your function as you go to make sure its working the way you expect it to. Instead of adding the function to your global environment as you might do in a normal R script you should call `load_all()`. 
+
+<img src="images/load_all.PNG" style="width:75%">
+
+If we call this for *foopkg* we can now experiment with `fooadd` in a robust way. 
+
+<img src="images/fooadd.PNG" style="width:75%">
+
+It looks like our function are working!
+
 
 
 
