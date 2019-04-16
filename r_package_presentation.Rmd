@@ -3,6 +3,7 @@ title: 'Making an R package: getting started and lessons learned'
 author: "Nick Williams"
 output: 
   html_document: 
+    theme: cosmo
     toc: true
     toc_float: true
     css: styles.css
@@ -55,7 +56,7 @@ Before we go any further, we should also add a license. Making an R package is a
 use_mit_license("Your name here")
 ```
 
-Two new files should be added to your package folder. If you open the .md file you should see a licence identical to this but with your name instead. 
+Two new files should be added to your package folder. If you open the .md file you should see a license identical to this one but with your name instead. 
 
 <img src="images/license.PNG" style="width:75%">
 
@@ -69,42 +70,38 @@ The code for package functions should be stored in the R folder. It is good prac
 use_r("fooadd")
 ```
 
-`use_r` will create a .R file in R/. In this case, the file will be called "fooadd.R" We are also going to manually create a file in R/ called "print.fooadd.R". We can't use `use_r` in this case because the period between print and fooadd will be replaced with a dash; this period is necessary for correct functionality in this case. 
-
-We can now populate the new files with the defining code of the functions. 
+`use_r()` will create a .R file in R/. In this case, the file will be called "fooadd.R" We can now populate the new file with the defining code of the functions. 
 
 ```{r}
-fooadd <- function(obj, ...) {
-  x <- sum(obj, ...)
-
-  out <- list(obj = obj, ..., sum = x)
+fooadd <- function(...) {
+  x <- sum(...)
+  
+  out <- list(vals = unlist(list(...)), sum = x)
   class(out) <- "fadd"
   out
+}
+
+print.fadd <- function(x, ...) {
+  
+  base <- glue::glue('{x$vals[1]} +')
+  y <- x$vals[2:length(z$vals)]
+  
+  for (i in 1L:length(y)) {
+    if (i < length(y)) {
+      base <- glue::glue('{base} {y[i]} +')
+    } else if (i == length(y)) {
+      base <- glue::glue('{base} {y[i]}')
+    }
+  }
+  cat(glue::glue('{base} = {x$sum}'))
 }
 ```
 
 `fooadd` is a simple function that takes two integers as its arguments and returns their sum. However, instead of returning standard R console output, we are are going to utilize the S3 object-oriented program mechanic in R to output some nicer looking output. To do this, we write a function called `print.fadd` which takes as its input the list created when calling `fooadd` and then combines those list elements using `glue`. Now, whenever printing the results of `fooadd`, the function `print` searches through its defined methods and recognizes how to print an object of class "fadd". 
 
-```{r}
-print.fadd <- function(x, ...) {
-
-  base <- glue('{x$obj} +')
-  y <- x[names(x) == ""]
-
-  for (i in 1:length(y)) {
-    if (i < length(y)) {
-      base <- glue('{base} {y[[i]]} +')
-    } else if (i == length(y)) {
-      base <- glue('{base} {y[[i]]}')
-    }
-  }
-  cat(glue('{base} = {x$sum}'))
-}
-```
-
 This might seem unnecessary, but its important to remember that you should be writing functions that are going to be distributed and used in ways you may not expect. Beyond returning a more user friendly output, creating an S3 method for the generic `print` function allows users to save the results of `fooadd` as an object which can be further manipulated. 
 
-### Piloting
+### Experimentation
 
 Of course you are going to want to test your function as you go to make sure its working the way you expect it to. Instead of adding the function to your global environment as you might do in a normal R script you should call `load_all()`. 
 
@@ -114,7 +111,150 @@ If we call this for *foopkg* we can now experiment with `fooadd` in a robust way
 
 <img src="images/fooadd.PNG" style="width:75%">
 
-It looks like our function are working!
+It looks like our functions are working!
+
+## Documentation
+
+If you're creating functions that you don't intend to be distributed to anyone else you could call the job complete. Publishable packages, however, are distributed with documentation that helps users figure out how to utilize the functions. Good documentation is a cornerstone of a good package. For example, run `?lm`. Help pages such as these are written in an R specific markup language that is similar to LaTeX. 
+
+Instead of writing the bulk of this code by hand, we can use the *roxygen2* package to build a skeleton that needs to be filled in. 
+
+To get started, we can generate the skeleton of our functions' documentation by clicking anywhere within each function and using *Code > Insert Roxygen Skeleton*. 
+
+```{r}
+#' Title
+#'
+#' @param obj
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+fooadd <- function(...) {
+  x <- sum(...)
+
+  out <- list(vals = unlist(list(...)), sum = x)
+  class(out) <- "fadd"
+  out
+}
+
+#' Title
+#'
+#' @param x
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+print.fadd <- function(x, ...) {
+
+  base <- glue::glue('{x$vals[1]} +')
+  y <- x$vals[2:length(z$vals)]
+
+  for (i in 1L:length(y)) {
+    if (i < length(y)) {
+      base <- glue::glue('{base} {y[i]} +')
+    } else if (i == length(y)) {
+      base <- glue::glue('{base} {y[i]}')
+    }
+  }
+  cat(glue::glue('{base} = {x$sum}'))
+}
+```
+
+Roxygen comments begin with `#'` and the roxygen comments that proceed a function are called blocks which are separated by `@tags`. 
+
+The first paragrah is the title of the documentation while the second paragraph becomes the description of the function. The third paragraph is the details section that goes into more specific detail about how the function works; this section usually comes after `@param` tags. 
+
+`@param a_paramter` tags describe specific parameters in the function (i.e., whether they are required or optional, their class, etc.). 
+`@return` describes what is returned when a function is succesfully run. 
+`@examples` is where you should include executable R code as examples of the function in use. 
+`@export` indicates to add the function to the NAMESPACE so the function can actually be used. 
+
+Lets populate the tags with the information regarding the functions. 
+
+```{r}
+#' fooadd
+#'
+#' A useless function for adding numbers.
+#'
+#' @param ... numbers you could sum
+#'
+#' @return The summation
+#' @export
+#'
+#' @examples
+#' fooadd(1, 2, 3, 4)
+fooadd <- function(...) {
+  x <- sum(...)
+
+  out <- list(vals = unlist(list(...)), sum = x)
+  class(out) <- "fadd"
+  out
+}
+
+#' S3 method for printing fooadd
+#'
+#' @param x list containing objects to print
+#' @param ... optional arguments
+#'
+#' @return Some pretty output
+#' @export
+print.fadd <- function(x, ...) {
+
+  base <- glue::glue('{x$vals[1]} +')
+  y <- x$vals[2:length(z$vals)]
+
+  for (i in 1L:length(y)) {
+    if (i < length(y)) {
+      base <- glue::glue('{base} {y[i]} +')
+    } else if (i == length(y)) {
+      base <- glue::glue('{base} {y[i]}')
+    }
+  }
+  cat(glue::glue('{base} = {x$sum}'))
+}
+```
+
+We can now generate the files that will contain this documentation by calling `document()`. 
+
+<img src="images/help_food.PNG" style="width:75%">
+
+### Namespace & Description
+
+You might have noticed that `fooadd` uses a function from another package, `glue` from *glue*, to create our output. What happens though if a user doesn't already have *glue* installed? 
+
+<img src="images/namespace_error.PNG" style="width:75%">
+
+This is where the NAMESPACE comes into play and it basically ensures that our package plays well with others. *You should not edit the NAMESPACE by hand*.
+
+There are two ways of doing this: imports and depends. 
+
+```{r}
+#' foopkg: Lets add some numbers
+#'
+#' You get one function: add
+#'
+#' @section The functions:
+#' fooadd()
+#'
+#' @docType package
+#' @name foopkg
+#' 
+#' @import glue
+#' 
+NULL
+#> NULL
+```
+
+## Tests
+
+## Check and Install
+
+
+
 
 
 
