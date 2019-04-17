@@ -24,12 +24,9 @@ knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 To get setup, we can first check to see if the `devtools` package is installed and if not install it. 
 
 ```{r eval = FALSE}
-if (!require(devtools)) {
-  install.packages("devtools") 
-  library(devtools)
-} else {
-  library(devtools)
-}
+pkg <- c("devtools", "usethis", "glue")
+
+lapply(pkg, require, character.only = TRUE)
 ```
 
 Once we have devtools loaded, we can create the skeleton of the package. This is where you get to decide the most important aspect of your package, it's name. 
@@ -84,7 +81,7 @@ fooadd <- function(...) {
 print.fadd <- function(x, ...) {
   
   base <- glue::glue('{x$vals[1]} +')
-  y <- x$vals[2:length(z$vals)]
+  y <- x$vals[2L:length(z$vals)]
   
   for (i in 1L:length(y)) {
     if (i < length(y)) {
@@ -151,7 +148,7 @@ fooadd <- function(...) {
 print.fadd <- function(x, ...) {
 
   base <- glue::glue('{x$vals[1]} +')
-  y <- x$vals[2:length(z$vals)]
+  y <- x$vals[2L:length(z$vals)]
 
   for (i in 1L:length(y)) {
     if (i < length(y)) {
@@ -205,7 +202,7 @@ fooadd <- function(...) {
 print.fadd <- function(x, ...) {
 
   base <- glue::glue('{x$vals[1]} +')
-  y <- x$vals[2:length(z$vals)]
+  y <- x$vals[2L:length(z$vals)]
 
   for (i in 1L:length(y)) {
     if (i < length(y)) {
@@ -222,34 +219,41 @@ We can now generate the files that will contain this documentation by calling `d
 
 <img src="images/help_food.PNG" style="width:75%">
 
-### Namespace & Description
+### NAMESPACE & DESCRIPTION
 
-You might have noticed that `fooadd` uses a function from another package, `glue` from *glue*, to create our output. What happens though if a user doesn't already have *glue* installed? 
+You might have noticed that `fooadd` uses a function from another package, `glue` from *glue*, to create our output. What happens though if a user doesn't already have *glue* installed? If I run `check()` (we will get to this soon) I get an error indicating that I haven't included an `import` for `glue()`.
 
 <img src="images/namespace_error.PNG" style="width:75%">
 
-This is where the NAMESPACE comes into play and it basically ensures that our package plays well with others. *You should not edit the NAMESPACE by hand*.
+This is where the NAMESPACE and DESCRIPTION come into play; they basically ensure that our package plays well with others. *You should not edit the NAMESPACE by hand*.
 
-There are two ways of doing this: imports and depends. 
+There are two ways of doing this: imports and depends. `imports` and `depends` both will install packages that aren't already installed on a system, their only difference is that `depends` will also load the package into the environment. For our package we will just use `imports` as we are accessing the `glue()`  using `::`. 
 
-```{r}
-#' foopkg: Lets add some numbers
-#'
-#' You get one function: add
-#'
-#' @section The functions:
-#' fooadd()
-#'
-#' @docType package
-#' @name foopkg
-#' 
-#' @import glue
-#' 
-NULL
-#> NULL
+To include *glue* as an import in DESCRIPTION we can run `use_package(glue)`. If we open DESCRIPTION we should now see an `imports` field for *glue*.
+
+```{}
+Package: foopkg
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "First",
+           family = "Last",
+           role = c("aut", "cre"),
+           email = "first.last@example.com")
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+Imports: 
+    glue
 ```
 
+While we have DESCRIPTION open we can go ahead and update some of the missing fields. 
+
 ## Tests
+
+Up to this point we have been informally checking the performance of our function. 
 
 ## Check and Install
 
