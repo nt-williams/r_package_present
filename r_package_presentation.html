@@ -1750,10 +1750,15 @@ Imports:
 </div>
 <div id="tests" class="section level2">
 <h2>Tests</h2>
-<p>Up to this point we have been informally checking the performance of our function.</p>
+<p>Up to this point we have been informally checking the performance of our function. While this works for quick checks as you write functions it is not scalable. For example, at some point in your package’s timeline you will release updates, how would you ensure that these updates don’t create issues in functionality. It is because of this we should formally write unit tests (a unit test is just a tests that evaluates individual components of software). To do this we will use the <em>testhat</em> package.</p>
+<p>Per usual, <em>devtools</em> has a helper function for setting this up. Run <code>use_test()</code> in the console. A new folder should be created in your directory called <code>tests</code> which should contain another folder, <code>testhat</code>.</p>
 </div>
 <div id="check-and-install" class="section level2">
 <h2>Check and Install</h2>
+</div>
+<div id="resources" class="section level2">
+<h2>Resources</h2>
+<p>This tutorial is largely based on <em>R Packages</em> (2nd edition) by Hadley Wickham. If you are serious about making your own package, I highly recommend you give it a read. A free online version of the text can be found <a href="https://r-pkgs.org/">here</a>.</p>
 </div>
 
 

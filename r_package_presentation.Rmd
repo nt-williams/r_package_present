@@ -253,9 +253,15 @@ While we have DESCRIPTION open we can go ahead and update some of the missing fi
 
 ## Tests
 
-Up to this point we have been informally checking the performance of our function. 
+Up to this point we have been informally checking the performance of our function. While this works for quick checks as you write functions it is not scalable. For example, at some point in your package's timeline you will release updates, how would you ensure that these updates don't create issues in functionality. It is because of this we should formally write unit tests (a unit test is just a tests that evaluates individual components of software). To do this we will use the *testhat* package. 
+
+Per usual, *devtools* has a helper function for setting this up. Run `use_test()` in the console. A new folder should be created in your directory called `tests` which should contain another folder, `testhat`.
 
 ## Check and Install
+
+## Resources
+
+This tutorial is largely based on *R Packages* (2nd edition) by Hadley Wickham. If you are serious about making your own package, I highly recommend you give it a read. A free online version of the text can be found [here](https://r-pkgs.org/).
 
 
 
